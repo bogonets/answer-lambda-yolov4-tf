@@ -1,0 +1,101 @@
+{
+    "info": {
+        "name": "yolov4_detect",
+        "version": "1.0.0",
+        "category": "yolov4",
+        "keywords": ["deep", "yolov4"],
+        "homepage": "https://answer.bogonets.com/",
+        "bugs": "https://answer.bogonets.com/",
+        "license": "Bogonet License",
+        "author": "wooruang",
+        "dependencies": [
+            {"type": "pip", "src": "numpy"},
+            {"type": "pip", "src": "tensorflow2"},
+            {"type": "pip", "src": "opencv-python"}
+        ],
+        "engines": ">=1.0.2",
+        "environment": {},
+        "titles": {
+            "en": "Inference",
+            "ko": "추론"
+        },
+        "descriptions": {
+            "en": "Detection by Yolov4.",
+            "ko": "."
+        },
+        "documentation_mime": "text",
+        "documentations": {},
+        "meta": {}
+    },
+    "controls": {
+        "input": "image",
+        "output": "bboxes"
+    },
+    "props": [
+        {
+            "rule": "read_and_write",
+            "name": "input_size",
+            "default_value": "608",
+            "type": "int",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "Input image size(N x N)",
+                "ko": "입력 이미지 크기(N x N)"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "num_classes",
+            "default_value": "80",
+            "type": "int",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "A number of class",
+                "ko": "클래스의 갯수"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "conf_threshold",
+            "default_value": "0.5",
+            "type": "float",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "Confidence threshold",
+                "ko": "Confidence 임계치"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "iou_threshold",
+            "default_value": "0.45",
+            "type": "float",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "IOU threshold",
+                "ko": "IOU 임계치"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        }
+
+    ]
+}
