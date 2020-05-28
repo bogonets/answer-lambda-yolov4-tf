@@ -1,13 +1,17 @@
+import sys
 import numpy as np
 import tensorflow as tf
 from core.yolov4 from YOLOv4, decode
 from core.utils from load_weights
 
 model = None
+
+weights = ''
 input_size = 608
 num_classes = 80
 conf_threshold = 0.5
 iou_threshold = 0.45
+
 
 ANCHOR_DEFAULT = '12,16, 19,36, 40,28, 36,75, 76,55, 72,146, 142,110, 192,243, 459,401'
 anchors = None
@@ -17,7 +21,10 @@ XYSCALE = [1.2, 1.1, 1.05]
 
 
 def on_set(k, v):
-    if k == 'input_size':
+    if k == 'weights':
+        global weights
+        weights = v
+    elif k == 'input_size':
         global input_size
         input_size = int(v)
     elif k == 'num_classes':
@@ -32,7 +39,9 @@ def on_set(k, v):
 
 
 def on_get(k):
-    if k == 'input_size':
+    if k == 'weights':
+        return weights
+    elif k == 'input_size':
         return str(input_size)
     elif k == 'num_classes':
         return str(num_classes)
@@ -42,7 +51,7 @@ def on_get(k):
         return str(iou_threshold)
 
 
-def on_create():
+def on_init():
     global model
     global anchors
 
@@ -54,10 +63,10 @@ def on_create():
         bbox_tensors.append(bbox_tensor)
     model = tf.keras.Model(input_layer, bbox_tensors)
 
-    if FLAGS.weights.split(".")[len(FLAGS.weights.split(".")) - 1] == "weights":
-        utils.load_weights(model, FLAGS.weights)
+    if weights.split(".")[len(weights.split(".")) - 1] == "weights":
+        utils.load_weights(model, weights)
     else:
-        model.load_weights(FLAGS.weights).expect_partial()
+        model.load_weights(weights).expect_partial()
 
     anchors = utils.get_anchors(ANCHOR_DEFAULT)
 
@@ -72,6 +81,10 @@ def on_run(image):
     pred_bbox = utils.postprocess_bbbox(pred_bbox, anchors, STRIDES, XYSCALE)
     bboxes = utils.postprocess_boxes(pred_bbox, image, input_size, conf_threshold)
     bboxes = utils.nms(bboxes, iou_threshold, method='nms')
+
+    # bboxes[[xmin, ymin, xmax, ymax, score, class]]
+    # sys.stdout.write(f"[yolov4 detect] bboxes {bboxes}")
+    # sys.stdout.flush()
 
     return {
         'bboxes' : bboxes

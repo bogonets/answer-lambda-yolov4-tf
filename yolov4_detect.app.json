@@ -34,6 +34,22 @@
     "props": [
         {
             "rule": "read_and_write",
+            "name": "weights",
+            "default_value": "",
+            "type": "str",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "A File path of Weights",
+                "ko": "Weights 파일 경로"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
             "name": "input_size",
             "default_value": "608",
             "type": "int",
