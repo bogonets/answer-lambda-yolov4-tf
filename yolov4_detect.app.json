@@ -14,7 +14,10 @@
             {"type": "pip", "src": "opencv-python"}
         ],
         "engines": ">=1.0.2",
-        "environment": {},
+        "environment": {
+            "type": "pyenv",
+            "name": "yolov4"
+        },
         "titles": {
             "en": "Inference",
             "ko": "추론"
