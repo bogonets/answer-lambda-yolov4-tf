@@ -10,7 +10,7 @@
         "author": "wooruang",
         "dependencies": [
             {"type": "pip", "src": "numpy"},
-            {"type": "pip", "src": "tensorflow2"},
+            {"type": "pip", "src": "tensorflow"},
             {"type": "pip", "src": "opencv-python"}
         ],
         "engines": ">=1.0.2",
