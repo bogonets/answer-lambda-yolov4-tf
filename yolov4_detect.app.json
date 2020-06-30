@@ -9,6 +9,7 @@
         "license": "Bogonet License",
         "author": "wooruang",
         "dependencies": [
+            {"type": "pip", "src": "setuptools>=41.0.0"},
             {"type": "pip", "src": "numpy"},
             {"type": "pip", "src": "tensorflow"},
             {"type": "pip", "src": "opencv-python"}
