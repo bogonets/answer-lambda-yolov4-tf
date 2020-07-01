@@ -56,10 +56,15 @@ def read_class_names(class_file_name):
     return names
 
 
-def get_anchors(anchors_path, tiny=False):
+def get_anchors_as_file(anchors_path, tiny=False):
     '''loads the anchors from a file'''
     with open(anchors_path) as f:
         anchors = f.readline()
+    return get_anchors(anchors, tiny)
+
+
+def get_anchors(anchors, tiny=False):
+    '''loads the anchors from a file'''
     anchors = np.array(anchors.split(','), dtype=np.float32)
     if tiny:
         return anchors.reshape(2, 3, 2)
@@ -90,7 +95,11 @@ def image_preporcess(image, target_size, gt_boxes=None):
         return image_paded, gt_boxes
 
 
-def draw_bbox(image, bboxes, classes=read_class_names(cfg.YOLO.CLASSES), show_label=True):
+def draw_bbox(image, bboxes, show_label=True):
+    draw_bbox(image, bboxes, read_class_names(cfg.YOLO.CLASSES), show_label)
+
+
+def draw_bbox(image, bboxes, classes, show_label=True):
     """
     bboxes: [x_min, y_min, x_max, y_max, probability, cls_id] format coordinates.
     """
