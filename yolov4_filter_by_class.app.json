@@ -1,8 +1,8 @@
 {
     "info": {
-        "name": "yolov4_fiter_by_class",
+        "name": "yolo_fiter_by_class",
         "version": "1.0.0",
-        "category": "yolov4",
+        "category": "yolo",
         "keywords": ["deep", "yolov4"],
         "homepage": "https://answer.bogonets.com/",
         "bugs": "https://answer.bogonets.com/",
@@ -10,11 +10,14 @@
         "author": "wooruang",
         "dependencies": [
             {"type": "pip", "src": "numpy"},
-            {"type": "pip", "src": "tensorflow2"},
+            {"type": "pip", "src": "tensorflow"},
             {"type": "pip", "src": "opencv-python"}
         ],
         "engines": ">=1.0.2",
-        "environment": {},
+        "environment": {
+            "type": "pyenv",
+            "name": "yolo"
+        },
         "titles": {
             "en": "Filter by class",
             "ko": "클래스 필터"

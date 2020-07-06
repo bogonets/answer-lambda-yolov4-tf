@@ -4,6 +4,7 @@ import tensorflow as tf
 from core.yolov4 import YOLOv4, decode
 from core import utils
 
+model_name = ''
 model = None
 
 weights = ''
@@ -13,7 +14,8 @@ conf_threshold = 0.5
 iou_threshold = 0.45
 
 
-ANCHOR_DEFAULT = '12,16, 19,36, 40,28, 36,75, 76,55, 72,146, 142,110, 192,243, 459,401'
+ANCHOR_V4_DEFAULT = '12,16, 19,36, 40,28, 36,75, 76,55, 72,146, 142,110, 192,243, 459,401'
+ANCHOR_V3_DEFAULT = '10,13, 16,30, 33,23, 30,61, 62,45, 59,119, 116,90, 156,198, 373,326'
 anchors = None
 
 STRIDES = [8, 16, 32]
@@ -21,7 +23,10 @@ XYSCALE = [1.2, 1.1, 1.05]
 
 
 def on_set(k, v):
-    if k == 'weights':
+    if k == 'model':
+        global model_name
+        model_name = v
+    elif k == 'weights':
         global weights
         weights = v
     elif k == 'input_size':
@@ -39,7 +44,9 @@ def on_set(k, v):
 
 
 def on_get(k):
-    if k == 'weights':
+    if k == 'model':
+        return model_name
+    elif k == 'weights':
         return weights
     elif k == 'input_size':
         return str(input_size)
@@ -83,7 +90,11 @@ def on_init():
     else:
         model.load_weights(weights).expect_partial()
 
-    anchors = utils.get_anchors(ANCHOR_DEFAULT)
+    if model_name == "yolov3":
+        anchors = utils.get_anchors(ANCHOR_V3_DEFAULT)
+    else:
+        anchors = utils.get_anchors(ANCHOR_V4_DEFAULT)
+
     return True
 
 
@@ -94,13 +105,24 @@ def on_run(image):
 
     pred_bbox = model.predict(image_data)
 
-    pred_bbox = utils.postprocess_bbbox(pred_bbox, anchors, STRIDES, XYSCALE)
+    
+    # sys.stdout.write(f"[yolo_detect] pred_bbox {pred_bbox}")
+    # sys.stdout.write(f"[yolo_detect] pred_bbox[0].shape {pred_bbox[0].shape}")
+    # sys.stdout.write(f"[yolo_detect] anchors {anchors}")
+    # sys.stdout.flush()
+
+
+    if model_name == "yolov3":
+        pred_bbox = utils.postprocess_bbbox(pred_bbox, anchors, STRIDES)
+    else:
+        pred_bbox = utils.postprocess_bbbox(pred_bbox, anchors, STRIDES, XYSCALE)
+
     bboxes = utils.postprocess_boxes(pred_bbox, image.shape[:-1], input_size, conf_threshold)
     bboxes = utils.nms(bboxes, iou_threshold, method='nms')
 
     # bboxes[[xmin, ymin, xmax, ymax, score, class]]
-    sys.stdout.write(f"[yolov4 detect] bboxes {bboxes}")
-    sys.stdout.flush()
+    # sys.stdout.write(f"[yolov4 detect] bboxes {bboxes}")
+    # sys.stdout.flush()
 
     return {
         'bboxes' : np.array(bboxes)

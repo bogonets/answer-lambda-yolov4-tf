@@ -1,30 +1,46 @@
 {
     "info": {
-        "name": "yolov4_detect",
+        "name": "yolo_detect",
         "version": "1.0.0",
-        "category": "yolov4",
-        "keywords": ["deep", "yolov4"],
+        "category": "yolo",
+        "keywords": [
+            "deep",
+            "yolov4",
+            "yolov3"
+        ],
         "homepage": "https://answer.bogonets.com/",
         "bugs": "https://answer.bogonets.com/",
         "license": "Bogonet License",
         "author": "wooruang",
         "dependencies": [
-            {"type": "pip", "src": "easydict"},
-            {"type": "pip", "src": "numpy"},
-            {"type": "pip", "src": "tensorflow"},
-            {"type": "pip", "src": "opencv-python"}
+            {
+                "type": "pip",
+                "src": "easydict"
+            },
+            {
+                "type": "pip",
+                "src": "numpy"
+            },
+            {
+                "type": "pip",
+                "src": "tensorflow"
+            },
+            {
+                "type": "pip",
+                "src": "opencv-python"
+            }
         ],
         "engines": ">=1.0.2",
         "environment": {
             "type": "pyenv",
-            "name": "yolov4"
+            "name": "yolo"
         },
         "titles": {
             "en": "Inference",
             "ko": "추론"
         },
         "descriptions": {
-            "en": "Detection by Yolov4.",
+            "en": "Detection by Yolo.",
             "ko": "."
         },
         "documentation_mime": "text",
@@ -36,6 +52,24 @@
         "output": "bboxes"
     },
     "props": [
+        {
+            "rule": "read_and_write",
+            "name": "model",
+            "default_value": "yolov4",
+            "type": "str",
+            "required": true,
+            "valid": {
+                "list": "yolov4;yolov3"
+            },
+            "title": {
+                "en": "Yolo's version",
+                "ko": "Yolo 버전"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
         {
             "rule": "read_and_write",
             "name": "weights",
@@ -116,6 +150,5 @@
                 "ko": ""
             }
         }
-
     ]
 }
