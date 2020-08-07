@@ -1,0 +1,186 @@
+{
+    "info": {
+        "name": "yolo_detect_v2",
+        "version": "1.0.0",
+        "category": "yolo",
+        "keywords": [
+            "deep",
+            "yolov4",
+            "yolov3"
+        ],
+        "homepage": "https://answer.bogonets.com/",
+        "bugs": "https://answer.bogonets.com/",
+        "license": "Bogonet License",
+        "author": "wooruang",
+        "dependencies": [
+            {
+                "type": "pip",
+                "src": "easydict"
+            },
+            {
+                "type": "pip",
+                "src": "numpy"
+            },
+            {
+                "type": "pip",
+                "src": "tensorflow"
+            },
+            {
+                "type": "pip",
+                "src": "opencv-python"
+            }
+        ],
+        "engines": ">=1.0.2",
+        "environment": {
+            "type": "pyenv",
+            "name": "yolo"
+        },
+        "titles": {
+            "en": "Inference",
+            "ko": "추론"
+        },
+        "descriptions": {
+            "en": "Detection by Yolo.",
+            "ko": "."
+        },
+        "documentation_mime": "text",
+        "documentations": {},
+        "meta": {}
+    },
+    "controls": {
+        "input": "image",
+        "output": "bboxes"
+    },
+    "props": [
+        {
+            "rule": "read_and_write",
+            "name": "model",
+            "default_value": "yolov4",
+            "type": "str",
+            "required": true,
+            "valid": {
+                "list": "yolov4;yolov3"
+            },
+            "title": {
+                "en": "Yolo's version",
+                "ko": "Yolo 버전"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "weights",
+            "default_value": "",
+            "type": "str",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "A File path of Weights",
+                "ko": "Weights 파일 경로"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "input_size",
+            "default_value": "608",
+            "type": "int",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "Input image size(N x N)",
+                "ko": "입력 이미지 크기(N x N)"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "num_classes",
+            "default_value": "80",
+            "type": "int",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "A number of class",
+                "ko": "클래스의 갯수"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "conf_threshold",
+            "default_value": "0.5",
+            "type": "float",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "Confidence threshold",
+                "ko": "Confidence 임계치"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "iou_threshold",
+            "default_value": "0.45",
+            "type": "float",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "IOU threshold",
+                "ko": "IOU 임계치"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "gpu",
+            "default_value": "0",
+            "type": "int",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "GPU Index",
+                "ko": "GPU 인덱스"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        },
+        {
+            "rule": "read_and_write",
+            "name": "gpu_memory_limit",
+            "default_value": "1024",
+            "type": "int",
+            "required": true,
+            "valid": {},
+            "title": {
+                "en": "GPU Memory Limit",
+                "ko": "GPU 메모리 제한량"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        }
+    ]
+}
