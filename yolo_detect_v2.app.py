@@ -1,8 +1,15 @@
 import sys
+import os
+# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
+
 import numpy as np
 import tensorflow as tf
-from core.yolov4 import YOLOv4, decode
-from core import utils
+from tensorflow.python.saved_model import tag_constants
+# from core.yolov4 import YOLOv4, decode
+# from core import utils
+import cv2
 
 model_name = ''
 model = None
@@ -21,6 +28,9 @@ anchors = None
 
 STRIDES = [8, 16, 32]
 XYSCALE = [1.2, 1.1, 1.05]
+
+saved_model_loaded = None
+infer = None
 
 
 def on_set(k, v):
@@ -72,77 +82,119 @@ def on_get(k):
 def on_init():
     global model
     global anchors
+    global saved_model_loaded
+    global infer
 
     gpus = tf.config.experimental.list_physical_devices('GPU')
+    sys.stderr.write(f"[yolo_detect_v2.on_init] gpus({len(gpus)}) : {gpus}\n")
+    sys.stderr.write(f"[yolo_detect_v2.on_init] selected gpu({gpu}) : {gpus[gpu]}\n")
+    sys.stderr.flush()
     if gpus:
         # Restrict TensorFlow to only allocate some of memory on the first GPU
         try:
+            tf.config.experimental.set_visible_devices(gpus[gpu], 'GPU')
+            # tf.config.experimental.set_memory_growth(gpus[gpu], True)
             tf.config.experimental.set_virtual_device_configuration(
-                gpus[0],
+                gpus[gpu],
                 [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=gpu_memory_limit)])
             logical_gpus = tf.config.experimental.list_logical_devices('GPU')
-            sys.stdout.write(f"{len(gpus)} Physical GPUs, {len(logical_gpus)} Logical GPUs\n")
-            sys.stdout.flush()
+            sys.stderr.write(f"[yolo_detect_v2.on_init] {len(gpus)} Physical GPUs, {len(logical_gpus)} Logical GPUs\n")
+            sys.stderr.flush()
         except RuntimeError as e:
             # Virtual devices must be set before GPUs have been initialized
-            sys.stdout.write(e)
-            sys.stdout.flush()
-            return False
+            sys.stderr.write(f'[yolo_detect.on_init] RuntimeError - {e}')
+            sys.stderr.flush()
+        except Exception as e:
+            sys.stderr.write(f'[yolo_detect.on_init] Error - {e}')
+            sys.stderr.flush()
+    sys.stderr.write(f"[yolo_detect_v2.on_init] weights - {weights}\n")
+    sys.stderr.flush()
+    saved_model_loaded = tf.saved_model.load(weights, tags=[tag_constants.SERVING])
+    sys.stderr.write(f"[yolo_detect_v2.on_init] saved_model_loaded - {saved_model_loaded}\n")
+    sys.stderr.flush()
+    infer = saved_model_loaded.signatures['serving_default']
+    sys.stderr.write(f"[yolo_detect_v2.on_init] infer- {infer}\n")
+    sys.stderr.flush()
 
-    try:
-        # Specify an invalid GPU device
-        with tf.device(f'/device:GPU:{gpu}'):
+    #        return False
 
-            saved_model_loaded = tf.saved_model.load(FLAGS.weights, tags=[tag_constants.SERVING])
-            infer = saved_model_loaded.signatures['serving_default']
+    # try:
+    #     # Specify an invalid GPU device
+    #     #with tf.device(f'/device:GPU:{gpu}'):
 
-    except RuntimeError as e:
-        sys.stderr.write(f'[yolo_detect.on_init] RuntimeError - {e}')
-        sys.stderr.flush()
-    except Exception as e:
-        sys.stderr.write(f'[yolo_detect.on_init] Error - {e}')
-        sys.stderr.flush()
+    #     sys.stderr.write(f"[yolo_detect_v2.on_init] weights - {weights}\n")
+    #     sys.stderr.flush()
+    #     saved_model_loaded = tf.saved_model.load(weights, tags=[tag_constants.SERVING])
+    #     sys.stderr.write(f"[yolo_detect_v2.on_init] saved_model_loaded - {saved_model_loaded}\n")
+    #     sys.stderr.flush()
+    #     infer = saved_model_loaded.signatures['serving_default']
+    #     sys.stderr.write(f"[yolo_detect_v2.on_init] infer- {infer}\n")
+    #     sys.stderr.flush()
+
+    # except RuntimeError as e:
+    #     sys.stderr.write(f'[yolo_detect.on_init] RuntimeError - {e}')
+    #     sys.stderr.flush()
+    # except Exception as e:
+    #     sys.stderr.write(f'[yolo_detect.on_init] Error - {e}')
+    #     sys.stderr.flush()
 
     return True
 
 
 def on_run(image):
-    try:
-        # Specify an invalid GPU device
-        with tf.device(f'/device:GPU:{gpu}'):
-            image_data = cv2.resize(image, (input_size, input_size))
-            image_data = image_data / 255.
-            image_data = image_data[np.newaxis, ...].astype(np.float32)
+    # try:
+    # Specify an invalid GPU device
+    # with tf.device(f'/device:GPU:{gpu}'):
+    # sys.stderr.write(f'[yolo_detect.on_run] image.shape - {image.shape}\n')
+    # sys.stderr.flush()
+    image_data = cv2.resize(image, (input_size, input_size))
+    image_data = image_data / 255.
+    image_data = image_data[np.newaxis, ...].astype(np.float32)
 
-            batch_data = tf.constant(image_data)
-            pred_bbox = infer(batch_data)
-            for key, value in pred_bbox.items():
-                boxes = value[:, :, 0:4]
-                pred_conf = value[:, :, 4:]
+    batch_data = tf.constant(image_data)
+    pred_bbox = infer(batch_data)
+    for key, value in pred_bbox.items():
+        boxes = value[:, :, 0:4]
+        pred_conf = value[:, :, 4:]
+    # sys.stderr.write(f'[yolo_detect.on_run] pred_bbox - {pred_bbox}\n')
+    # sys.stderr.flush()
 
-            boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
-                boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
-                scores=tf.reshape(
-                    pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
-                max_output_size_per_class=50,
-                max_total_size=50,
-                iou_threshold=FLAGS.iou,
-                score_threshold=FLAGS.score
-            )
-            bboexs = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
+    boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
+        boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
+        scores=tf.reshape(
+            pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
+        max_output_size_per_class=50,
+        max_total_size=50,
+        iou_threshold=iou_threshold,
+        score_threshold=conf_threshold
+    )
+    # bboxes = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
+    # boxes = [[[xmin, ymin, xmax, ymax], [...]]]
+    # scores = [[1,2]] -> [[1],[2]]
+    # classes = [[0,0]]
+    # sys.stderr.write(f'[yolo_detect.on_run] boxes - {boxes}\n')
+    # sys.stderr.write(f'[yolo_detect.on_run] scores - {scores}\n')
+    # sys.stderr.write(f'[yolo_detect.on_run] classes - {classes}\n')
+    # sys.stderr.write(f'[yolo_detect.on_run] valid_detections - {valid_detections}\n')
+    # sys.stderr.flush()
+    bboxes = boxes.numpy()[0]
+    bboxes = np.append(bboxes, scores.numpy().reshape(-1,1), axis=1)
+    bboxes = np.append(bboxes, classes.numpy().reshape(-1,1), axis=1)
 
-            # bboxes[[xmin, ymin, xmax, ymax, score, class]]
-            # sys.stdout.write(f"[yolov4 detect] bboxes {bboxes}")
-            # sys.stdout.flush()
-            return {
-                    'bboxes' : np.array(bboxes)
-                }
-    except RuntimeError as e:
-        sys.stderr.write(f'[yolo_detect.on_run] RuntimeError - {e}')
-        sys.stderr.flush()
-    except Exception as e:
-        sys.stderr.write(f'[yolo_detect.on_run] Error - {e}')
-        sys.stderr.flush()
+    # bboxes[[xmin, ymin, xmax, ymax, score, class]]
+    # sys.stderr.write(f'[yolo_detect.on_run] bboxes - {bboxes}\n')
+    # sys.stderr.flush()
 
-    return {}
+    return {
+            'bboxes' : np.array(bboxes)
+        }
+    # except RuntimeError as e:
+    #     sys.stderr.write(f'[yolo_detect.on_run] RuntimeError - {e}')
+    #     sys.stderr.flush()
+    # except Exception as e:
+    #     sys.stderr.write(f'[yolo_detect.on_run] Error - {e}')
+    #     sys.stderr.flush()
+
+    # return {}
+
 

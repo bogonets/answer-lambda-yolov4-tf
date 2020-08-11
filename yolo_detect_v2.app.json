@@ -36,8 +36,8 @@
             "name": "yolo"
         },
         "titles": {
-            "en": "Inference",
-            "ko": "추론"
+            "en": "InferenceV2",
+            "ko": "추론V2"
         },
         "descriptions": {
             "en": "Detection by Yolo.",
