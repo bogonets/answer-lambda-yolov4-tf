@@ -143,13 +143,10 @@ def on_run(image):
     # sys.stderr.write(f'[yolo_detect.on_run] valid_detections - {valid_detections}\n')
     # sys.stderr.flush()
     bboxes = boxes.numpy()[0]
-    print(bboxes)
-    print('----------')
     permutation = [1, 0, 3, 2]
     idx = np.empty_like(permutation)
     idx[permutation] = np.arange(len(permutation))
     bboxes = bboxes[:, idx]
-    print(bboxes)
     bboxes = np.append(bboxes, scores.numpy().reshape(-1,1), axis=1)
     bboxes = np.append(bboxes, classes.numpy().reshape(-1,1), axis=1)
 
@@ -160,11 +157,4 @@ def on_run(image):
     return {
             'bboxes' : np.array(bboxes)
         }
-
-
-if __name__ == "__main__":
-    weights = '/home/bogonets/Projects/tensorflow-yolov4-tflite/checkpoints/yolov4-608-helmet'
-    on_init()
-    img = cv2.imread('/home/bogonets/Pictures/VOC_part2_000077.jpg')
-    print(on_run(img))
 
