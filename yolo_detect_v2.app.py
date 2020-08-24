@@ -150,6 +150,8 @@ def on_run(image):
     bboxes = np.append(bboxes, scores.numpy().reshape(-1,1), axis=1)
     bboxes = np.append(bboxes, classes.numpy().reshape(-1,1), axis=1)
 
+    bboxes = [x for x in bboxes if x[0] != 0 and x[1] != 0 and x[2] != 0 and x[3] != 0]
+
     # bboxes[[xmin, ymin, xmax, ymax, score, class]]
     # sys.stderr.write(f'[yolo_detect.on_run] bboxes - {bboxes}\n')
     # sys.stderr.flush()
