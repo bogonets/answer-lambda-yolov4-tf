@@ -1,0 +1,48 @@
+{
+    "info": {
+        "name": "select_gpu_for_tf",
+        "version": "1.0.0",
+        "category": "torch",
+        "keywords": [
+            "deep",
+            "pytorch"
+        ],
+        "homepage": "https://answer.bogonets.com/",
+        "bugs": "https://answer.bogonets.com/",
+        "license": "Bogonet License",
+        "author": "wooruang",
+        "engines": ">=1.0.2",
+        "environment": {
+            "type": "pyenv",
+            "name": "yolo"
+        },
+        "titles": {
+            "en": "GPU Selection for tf",
+            "ko": "GPU 선택 - tf"
+        },
+        "descriptions": {
+            "en": "Select GPU.",
+            "ko": "GPU 선택한다."
+        },
+        "documentation_mime": "text",
+        "documentations": {},
+        "meta": {}
+    },
+    "props": [
+        {
+            "rule": "read_and_write",
+            "name": "gpu",
+            "default_value": "0",
+            "type": "int",
+            "required": true,
+            "title": {
+                "en": "GPU index",
+                "ko": "GPU 인덱스"
+            },
+            "help": {
+                "en": "",
+                "ko": ""
+            }
+        }
+    ]
+}
